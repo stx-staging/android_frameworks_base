@@ -4948,6 +4948,12 @@ public final class Settings {
         public static final String FOOTER_TEXT_SHOW = "footer_text_show";
 
         /**
+          * Whether to change the transparency of the qs header
+          * @hide
+          */
+         public static final String QS_HEADER_BG_ALPHA = "qs_header_bg_alpha";
+
+        /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate
@@ -5077,6 +5083,7 @@ public final class Settings {
             PRIVATE_SETTINGS.add(DOUBLE_TAP_SLEEP_LOCKSCREEN);
             PRIVATE_SETTINGS.add(POCKET_JUDGE);
             PRIVATE_SETTINGS.add(FOOTER_TEXT_SHOW);
+            PRIVATE_SETTINGS.add(QS_HEADER_BG_ALPHA);
         }
 
         /**
