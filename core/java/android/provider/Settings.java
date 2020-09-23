@@ -8938,7 +8938,6 @@ public final class Settings {
         @SystemApi
         public static final int VOLUME_HUSH_MUTE = 2;
         /** @hide */
-        @SystemApi
         public static final int VOLUME_HUSH_CYCLE = 3;
 
         /**
