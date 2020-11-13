@@ -25,9 +25,7 @@ import static android.view.InsetsState.ITYPE_NAVIGATION_BAR;
 import static android.view.InsetsState.containsType;
 import static android.view.WindowInsetsController.APPEARANCE_LOW_PROFILE_BARS;
 import static android.view.WindowInsetsController.APPEARANCE_OPAQUE_NAVIGATION_BARS;
-import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_NO_MOVE_ANIMATION;
 import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_3BUTTON;
-import static android.view.WindowManagerPolicyConstants.NAV_BAR_MODE_GESTURAL;
 
 import static com.android.internal.accessibility.common.ShortcutConstants.CHOOSER_PACKAGE_NAME;
 import static com.android.internal.config.sysui.SystemUiDeviceConfigFlags.NAV_BAR_HANDLE_FORCE_OPAQUE;
@@ -59,9 +57,6 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.hardware.display.DisplayManager;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
 import android.os.Binder;
@@ -77,7 +72,6 @@ import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.InsetsState.InternalInsetsType;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -145,7 +139,7 @@ import dagger.Lazy;
  * on clicks and view states of the nav bar.
  */
 public class NavigationBarFragment extends LifecycleFragment implements Callbacks,
-        NavigationModeController.ModeChangedListener, DisplayManager.DisplayListener {
+        NavigationModeController.ModeChangedListener {
 
     public static final String TAG = "NavigationBar";
     private static final boolean DEBUG = false;
@@ -211,23 +205,7 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
     private boolean mIsOnDefaultDisplay;
     public boolean mHomeBlockedThisTouch;
 
-    /**
-     * When user is QuickSwitching between apps of different orientations, we'll draw a fake
-     * home handle on the orientation they originally touched down to start their swipe
-     * gesture to indicate to them that they can continue in that orientation without having to
-     * rotate the phone
-     * The secondary handle will show when we get
-     * {@link OverviewProxyListener#onQuickSwitchToNewTask(int)} callback with the
-     * original handle hidden and we'll flip the visibilities once the
-     * {@link #mTasksFrozenListener} fires
-     */
-    private QuickswitchOrientedNavHandle mOrientationHandle;
-    private WindowManager.LayoutParams mOrientationParams;
-    private int mStartingQuickSwitchRotation = -1;
-    private int mCurrentRotation;
-    private ViewTreeObserver.OnGlobalLayoutListener mOrientationHandleGlobalLayoutListener;
     private UiEventLogger mUiEventLogger;
-    private boolean mShowOrientedHandleForImmersiveMode;
 
     @com.android.internal.annotations.VisibleForTesting
     public enum NavBarActionEvent implements UiEventLogger.UiEventEnum {
@@ -297,15 +275,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         }
 
         @Override
-        public void onQuickSwitchToNewTask(@Surface.Rotation int rotation) {
-            mStartingQuickSwitchRotation = rotation;
-            if (rotation == -1) {
-                mShowOrientedHandleForImmersiveMode = false;
-            }
-            orientSecondaryHomeHandle();
-        }
-
-        @Override
         public void startAssistant(Bundle bundle) {
             mAssistManager.startAssist(bundle);
         }
@@ -345,14 +314,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
             mNavigationBarView.getRotationButtonController().setSkipOverrideUserLockPrefsOnce();
         }
     };
-
-    private NavigationBarTransitions.DarkIntensityListener mOrientationHandleIntensityListener =
-            new NavigationBarTransitions.DarkIntensityListener() {
-                @Override
-                public void onDarkIntensity(float darkIntensity) {
-                    mOrientationHandle.setDarkIntensity(darkIntensity);
-                }
-            };
 
     private final Runnable mAutoDim = () -> getBarTransitions().setAutoDim(true);
 
@@ -531,8 +492,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
                 new AssistHandleViewController(mHandler, mNavigationBarView);
             getBarTransitions().addDarkIntensityListener(mAssistHandlerViewController);
         }
-
-        initSecondaryHomeHandleForRotation();
     }
 
     @Override
@@ -549,14 +508,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         }
         mOverviewProxyService.removeCallback(mOverviewProxyListener);
         mBroadcastDispatcher.unregisterReceiver(mBroadcastReceiver);
-        if (mOrientationHandle != null) {
-            resetSecondaryHandle();
-            getContext().getSystemService(DisplayManager.class).unregisterDisplayListener(this);
-            getBarTransitions().removeDarkIntensityListener(mOrientationHandleIntensityListener);
-            mWindowManager.removeView(mOrientationHandle);
-            mOrientationHandle.getViewTreeObserver().removeOnGlobalLayoutListener(
-                    mOrientationHandleGlobalLayoutListener);
-        }
     }
 
     @Override
@@ -589,6 +540,7 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         repositionNavigationBar();
     }
 
+<<<<<<< HEAD
     private void initSecondaryHomeHandleForRotation() {
         if (!canShowSecondaryHandle()) {
             return;
@@ -698,6 +650,8 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         return delta;
     }
 
+=======
+>>>>>>> dd73fa5c4ba... [SQUASH]base: Revert secondary home handle
     @Override
     public void dump(String prefix, FileDescriptor fd, PrintWriter pw, String[] args) {
         if (mNavigationBarView != null) {
@@ -708,8 +662,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
             dumpBarTransitions(pw, "mNavigationBarView", mNavigationBarView.getBarTransitions());
         }
 
-        pw.print("  mStartingQuickSwitchRotation=" + mStartingQuickSwitchRotation);
-        pw.print("  mCurrentRotation=" + mCurrentRotation);
         pw.print("  mNavigationBarView=");
         if (mNavigationBarView == null) {
             pw.println("null");
@@ -765,11 +717,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
                 && mNavigationBarWindowState != state) {
             mNavigationBarWindowState = state;
             updateSystemUiStateFlags(-1);
-            mShowOrientedHandleForImmersiveMode = state == WINDOW_STATE_HIDDEN;
-            if (mOrientationHandle != null
-                    && mStartingQuickSwitchRotation != -1) {
-                orientSecondaryHomeHandle();
-            }
             if (DEBUG_WINDOW_STATE) Log.d(TAG, "Navigation bar " + windowStateToString(state));
 
             if (mNavigationBarView != null) {
@@ -1339,10 +1286,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
         mNavBarMode = mode;
         updateScreenPinningGestures();
 
-        if (!canShowSecondaryHandle()) {
-            resetSecondaryHandle();
-        }
-
         // Workaround for b/132825155, for secondary users, we currently don't receive configuration
         // changes on overlay package change since SystemUI runs for the system user. In this case,
         // trigger a new configuration change to ensure that the nav bar is updated in the same way.
@@ -1386,34 +1329,6 @@ public class NavigationBarFragment extends LifecycleFragment implements Callback
 
     private final AccessibilityServicesStateChangeListener mAccessibilityListener =
             this::updateAccessibilityServicesState;
-
-    @Override
-    public void onDisplayAdded(int displayId) {
-
-    }
-
-    @Override
-    public void onDisplayRemoved(int displayId) {
-
-    }
-
-    @Override
-    public void onDisplayChanged(int displayId) {
-        if (!canShowSecondaryHandle()) {
-            return;
-        }
-
-        int rotation = getContext().getResources().getConfiguration()
-                .windowConfiguration.getRotation();
-        if (rotation != mCurrentRotation) {
-            mCurrentRotation = rotation;
-            orientSecondaryHomeHandle();
-        }
-    }
-
-    private boolean canShowSecondaryHandle() {
-        return mNavBarMode == NAV_BAR_MODE_GESTURAL;
-    }
 
     private final Consumer<Integer> mRotationWatcher = rotation -> {
         if (mNavigationBarView != null
