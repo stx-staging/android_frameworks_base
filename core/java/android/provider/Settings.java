@@ -4784,6 +4784,13 @@ public final class Settings {
         public static final String ENABLE_DARKER_THEME = "enable_darker_theme";
 
         /**
+         * Auxiliary Button
+         * Provides an extra mappable action
+         * @hide
+         */
+        public static final String AUX_BUTTON = "aux_button";
+
+        /**
          * @hide
          */
         public static final String GLOBAL_ACTIONS_LIST = "global_actions_list";
