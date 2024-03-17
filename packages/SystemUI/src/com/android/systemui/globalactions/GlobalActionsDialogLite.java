@@ -1044,11 +1044,11 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
     @VisibleForTesting
     final class RestartAction extends SinglePressAction implements LongPressAction {
         RestartAction() {
-            super(R.drawable.ic_restart, com.android.systemui.R.string.global_action_reboot);
+            super(R.drawable.ic_restart, com.android.systemui.res.R.string.global_action_reboot);
             if (mRebootMenu) {
-                mMessageResId = com.android.systemui.R.string.global_action_reboot_sub;
+                mMessageResId = com.android.systemui.res.R.string.global_action_reboot_sub;
             } else if (showRebootSubmenu() && advancedRebootEnabled(mContext)) {
-                mMessageResId = com.android.systemui.R.string.global_action_reboot_more;
+                mMessageResId = com.android.systemui.res.R.string.global_action_reboot_more;
             }
         }
 
@@ -1098,7 +1098,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
     final class RebootRecoveryAction extends SinglePressAction {
         RebootRecoveryAction() {
-            super(com.android.systemui.R.drawable.ic_restart_recovery, com.android.systemui.R.string.global_action_reboot_recovery);
+            super(com.android.systemui.res.R.drawable.ic_restart_recovery, com.android.systemui.res.R.string.global_action_reboot_recovery);
         }
 
         @Override
@@ -1124,7 +1124,7 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
     final class RebootBootloaderAction extends SinglePressAction {
         RebootBootloaderAction() {
-            super(com.android.systemui.R.drawable.ic_restart_bootloader, com.android.systemui.R.string.global_action_reboot_bootloader);
+            super(com.android.systemui.res.R.drawable.ic_restart_bootloader, com.android.systemui.res.R.string.global_action_reboot_bootloader);
         }
 
         @Override
@@ -1150,8 +1150,8 @@ public class GlobalActionsDialogLite implements DialogInterface.OnDismissListene
 
     final class RebootFastbootAction extends SinglePressAction {
         RebootFastbootAction() {
-            super(com.android.systemui.R.drawable.ic_lock_restart_fastboot,
-                    com.android.systemui.R.string.global_action_reboot_fastboot);
+            super(com.android.systemui.res.R.drawable.ic_lock_restart_fastboot,
+                    com.android.systemui.res.R.string.global_action_reboot_fastboot);
         }
 
         @Override

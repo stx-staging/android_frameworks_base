@@ -327,6 +327,7 @@ public class BrightnessSliderController extends ViewController<BrightnessSliderV
             } else {
                 plugin = new BrightnessSliderHapticPlugin() {};
             }
+            ImageView icon = (ImageView) root.findViewById(R.id.brightness_icon);
             return new BrightnessSliderController(root, icon, mFalsingManager, mUiEventLogger, plugin);
         }
 

@@ -1183,7 +1183,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     break;
                 }
             }
-        } else if (mTorchActionMode != 0 && beganFromNonInteractive) {
+        } else if (mTorchActionMode != 0 && !interactive) {
             wakeUpFromPowerKey(eventTime);
         }
     }
